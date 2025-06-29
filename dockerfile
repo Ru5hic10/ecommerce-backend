@@ -1,11 +1,14 @@
-# Use official Java 17 image
+# Stage 1: Build the JAR
+FROM maven:3.9.5-eclipse-temurin-17 AS builder
+
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run the JAR
 FROM eclipse-temurin:17-jdk-alpine
 
-# Create app directory
 WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 
-# Copy built jar file
-COPY target/*.jar ecommerce-0.0.1-SNAPSHOT.jar
-
-# Set entry point
-ENTRYPOINT ["java", "-jar", "/app/ecommerce-0.0.1-SNAPSHOT.jar]
+ENTRYPOINT ["java", "-jar", "app.jar"]
