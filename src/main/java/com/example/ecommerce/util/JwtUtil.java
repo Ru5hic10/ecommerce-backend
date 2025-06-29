@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -14,19 +15,34 @@ import java.util.Base64;
 @Component
 public class JwtUtil {
 
+//    private Key key;
+//
+//    @PostConstruct
+//    public void init() {
+//        Dotenv dotenv = Dotenv.load(); // ✅ Load .env file
+//        String secret = dotenv.get("JWT_SECRET"); // ✅ Read JWT_SECRET from .env
+//        System.out.println("Loaded JWT_SECRET: " + secret);
+//        if (secret == null || secret.isEmpty()) {
+//            throw new RuntimeException("JWT_SECRET is missing in .env");
+//        }
+//        byte[] decodedKey = Base64.getDecoder().decode(secret);
+//        this.key = Keys.hmacShaKeyFor(decodedKey);
+//    }
+@Value("${JWT_SECRET}")
+private String secret;
+
     private Key key;
 
     @PostConstruct
     public void init() {
-        Dotenv dotenv = Dotenv.load(); // ✅ Load .env file
-        String secret = dotenv.get("JWT_SECRET"); // ✅ Read JWT_SECRET from .env
         System.out.println("Loaded JWT_SECRET: " + secret);
         if (secret == null || secret.isEmpty()) {
-            throw new RuntimeException("JWT_SECRET is missing in .env");
+            throw new RuntimeException("JWT_SECRET is missing");
         }
         byte[] decodedKey = Base64.getDecoder().decode(secret);
         this.key = Keys.hmacShaKeyFor(decodedKey);
     }
+
 
     public String generateToken(String email) {
         return Jwts.builder()
